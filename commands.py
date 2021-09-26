@@ -1,0 +1,5 @@
+UPDATE_MENU = 'update_menu'
+MAKE_ORDER = 'make_order'
+LOAD_ORDERS = 'load_orders'
+QUIT = 'quit'
+GET_MENU = 'get_menu'
