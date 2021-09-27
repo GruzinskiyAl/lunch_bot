@@ -7,6 +7,7 @@ class DataBaseScheme(TypedDict):
     users_id_list: List[str]
     commands_in_progress: dict
     menu: List[List[str]]
+    orders: dict
 
 
 def get_db_data() -> DataBaseScheme:
@@ -17,4 +18,5 @@ def get_db_data() -> DataBaseScheme:
 
 def update_db(insert_data):
     with open('db.json', 'r+') as db:
+        db.truncate(0)
         json.dump(insert_data, db, indent=2)
