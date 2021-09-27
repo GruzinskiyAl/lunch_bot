@@ -7,6 +7,7 @@ from database import get_db_data, update_db
 
 bot = telebot.TeleBot(settings.TELEGRAM_TOKEN)
 
+MENU_DELIMITER = '——'
 
 def command_is_locked(user, command):
     data = get_db_data()
@@ -15,13 +16,13 @@ def command_is_locked(user, command):
 
 def lock_command(user, command):
     data = get_db_data()
-    data['commands_in_progress'].pop({str(user.id): command})
+    data['commands_in_progress'].update({str(user.id): command})
     update_db(data)
 
 
 def remove_command_lock(user):
     data = get_db_data()
-    data['commands_in_progress'].pop({str(user.id)})
+    data['commands_in_progress'].pop(str(user.id))
     update_db(data)
 
 
@@ -30,26 +31,14 @@ def lock_command_decorator(command):
         def wrapper(message):
             lock_command(message.from_user, command)
             return fun(message)
-
         return wrapper
-
     return decorator
 
 
 def update_menu(menu_text):
     data = get_db_data()
-    menu = menu_text.split('\n')
-    menu = list(map(str.strip, menu))
-    menu_list = []
-    items = []
-    for item in menu:
-        if item == '——':
-            menu_list.append(items)
-            items = []
-            continue
-        items.append(item)
-    menu_list.append(items)
-    data['menu'] = menu_list
+    menu = [i.split('\n') for i in menu_text.split(f'\n{MENU_DELIMITER}\n')]
+    data['menu'] = menu
     update_db(data)
 
 
@@ -70,16 +59,15 @@ def start(message):
     bot.send_message(message.chat.id, f'Welcome aboard {user.first_name}', reply_markup=markup)
 
 
-@bot.message_handler(content_types=['text'], chat_types=['private'], commands=[])
+@bot.message_handler(content_types=['text'], chat_types=['private'])
 def message_handler(message):
-    breakpoint()
     user = message.from_user
     if message.text == UPDATE_MENU:
         lock_command(user, UPDATE_MENU)
         bot.send_message(message.chat.id, 'Send me new menu please 👀')
     if command_is_locked(user, UPDATE_MENU):
-        remove_command_lock(user)
         update_menu(menu_text=message.text)
+        remove_command_lock(user)
 
 
 @bot.message_handler(commands=[UPDATE_MENU], chat_types=['private'])

@@ -17,4 +17,5 @@ def get_db_data() -> DataBaseScheme:
 
 def update_db(insert_data):
     with open('db.json', 'r+') as db:
+        db.truncate(0)
         json.dump(insert_data, db, indent=2)
