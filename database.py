@@ -7,6 +7,7 @@ class DataBaseScheme(TypedDict):
     users_id_list: List[str]
     commands_in_progress: dict
     menu: List[List[str]]
+    orders: dict
 
 
 def get_db_data() -> DataBaseScheme:
