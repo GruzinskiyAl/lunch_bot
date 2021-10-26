@@ -1,5 +1,0 @@
-UPDATE_MENU = 'update_menu'
-MAKE_ORDER = 'order'
-LOAD_ORDERS = 'load_orders'
-QUIT = 'quit'
-GET_MENU = 'menu'

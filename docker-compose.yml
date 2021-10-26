@@ -1,0 +1,22 @@
+---
+
+version: "3.8"
+
+services:
+  bot:
+    build: .
+    container_name: bot_app
+    env_file:
+      - .env
+    volumes:
+      - ./:/src
+  mongo:
+    image: mongo
+    container_name: bot_db
+    ports:
+      - "${MONGO_PORT}:27017"
+    volumes:
+      - db_data:/data/db
+
+volumes:
+  db_data: { }
