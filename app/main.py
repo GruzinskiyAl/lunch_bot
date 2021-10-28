@@ -1,17 +1,16 @@
 from aiogram import Bot, Dispatcher, executor, types
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.contrib.middlewares.logging import LoggingMiddleware
 
+from app import messages
 from exceptions import DoesNotExist, NotCorrectMessage
 from menu import MenuManager
 from settings import TELEGRAM_TOKEN
 from users import UserManager
 
 bot = Bot(token=TELEGRAM_TOKEN)
-dp = Dispatcher(bot)
-
-ENTRY_MESSAGE = ("This is bot for making orders for lunch in andersen office\n\n"
-                 "/set_menu to set current menu\n"
-                 "/menu to check current menu\n"
-                 "/order to make order\n")
+dp = Dispatcher(bot, storage=MemoryStorage())
+dp.middleware.setup(LoggingMiddleware())
 
 
 def auth(func):
@@ -28,7 +27,7 @@ def auth(func):
 
 @dp.message_handler(commands=['help'])
 async def help_handler(message: types.Message):
-    await message.answer(ENTRY_MESSAGE)
+    await message.answer(messages.START_MESSAGE)
 
 
 @dp.message_handler(commands=['start'])
@@ -38,7 +37,7 @@ async def start_handler(message: types.Message):
         UserManager.get({'_id': user.id})
     except DoesNotExist:
         UserManager.add(user)
-    await message.answer(ENTRY_MESSAGE)
+    await message.answer(messages.START_MESSAGE, reply_markup=types.ReplyKeyboardRemove())
 
 
 @dp.message_handler(commands=['menu'])
@@ -58,11 +57,11 @@ async def set_menu_handler(message: types.Message):
     await message.answer("Send me new menu please 👀")
 
 
-@dp.message_handler(commands=['set_menu'])
+@dp.message_handler(commands=['order'])
 @auth
-async def set_menu_handler(message: types.Message):
-    UserManager.lock_command(message.from_user.id, 'set_menu')
-    await message.answer("Send me new menu please 👀")
+async def order_handler(message: types.Message):
+    # UserManager.lock_command(message.from_user.id, 'order')
+    await bot.send_message(message.from_user.id, text='order pls')
 
 
 @dp.message_handler()
